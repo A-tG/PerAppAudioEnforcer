@@ -29,6 +29,7 @@ partial class ButtonsPanel
     private void InitializeComponent()
     {
         ReloadConfigBtn = new Button();
+        SrcCodeLink = new LinkLabel();
         SuspendLayout();
         // 
         // ReloadConfigBtn
@@ -42,15 +43,27 @@ partial class ButtonsPanel
         ReloadConfigBtn.Text = "Reload Config";
         ReloadConfigBtn.UseVisualStyleBackColor = true;
         // 
+        // SrcCodeLink
+        // 
+        SrcCodeLink.Anchor = AnchorStyles.Right;
+        SrcCodeLink.AutoSize = true;
+        SrcCodeLink.Location = new Point(326, 8);
+        SrcCodeLink.Name = "SrcCodeLink";
+        SrcCodeLink.Size = new Size(72, 15);
+        SrcCodeLink.TabIndex = 1;
+        SrcCodeLink.TabStop = true;
+        SrcCodeLink.Text = "Source code";
+        SrcCodeLink.LinkClicked += SrcCodeLink_LinkClicked;
+        // 
         // ButtonsPanel
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        AutoSize = true;
         AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        Controls.Add(SrcCodeLink);
         Controls.Add(ReloadConfigBtn);
         Name = "ButtonsPanel";
-        Size = new Size(98, 31);
+        Size = new Size(403, 31);
         ResumeLayout(false);
         PerformLayout();
     }
@@ -58,4 +71,5 @@ partial class ButtonsPanel
     #endregion
 
     private Button ReloadConfigBtn;
+    private LinkLabel SrcCodeLink;
 }
