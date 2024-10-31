@@ -5,7 +5,7 @@ public class TrayIcon : IDisposable
 {
     private readonly NotifyIcon _notifyIcon = new()
     {
-        Text = "Per App audio enforcer",
+        Text = "Per App Audio enforcer",
         Icon = Resources.MainIcon
     };
     private readonly ContextMenuStrip _contextMenu = new();
