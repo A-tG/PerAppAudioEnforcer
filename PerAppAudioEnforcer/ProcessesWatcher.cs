@@ -62,11 +62,13 @@ public class ProcessesWatcher : IDisposable
 
             var id = instanceDescription.GetPropertyValue("ParentProcessId").ToString();
             if (string.IsNullOrEmpty(id)) return;
-            if (Process.GetProcessById(int.Parse(id)).ProcessName == name) return;
 
-            foreach (var t in filteredAppsActions)
+            var p = Process.GetProcessById(int.Parse(id));
+            if (p.ProcessName == name) return;
+
+            foreach (var (_, action) in filteredAppsActions)
             {
-                t.Item2();
+                action();
             }
         }
         catch { }
