@@ -3,10 +3,11 @@
 "App volume and device preferences" are often got reset after Windows/Driver/Hardware upgrade. This program watch running processes and calls [SoundVolumeView.exe](https://www.nirsoft.net/utils/sound_volume_view.html) /SetAppDefault for specified in config programs, so reset does not matter anymore.
 
 # config.txt example
-Program name is a case sensitive executable file name without .exe. Device id should be in quotation marks.
+ProgramName is a case sensitive executable file name without .exe. Device id should be in quotation marks.
 ```
 C:\PATH\TO\SoundVolumeView.exe
-ProgramName "Command-Line Friendly ID from SoundVolumeView of device"
+ProgramName "Command-Line Friendly ID from SoundVolumeView of device" OptionalDelayInMilliseconds
+msedge "VB-Audio Voicemeeter VAIO\Device\Voicemeeter AUX Input\Render" 2000
 ```
 # How to get the ID
 1. Open SoundVolumeView

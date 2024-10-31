@@ -50,11 +50,11 @@ public class Core : IDisposable
         }
     }
 
-    private async Task<HashSet<(string, string)>> ReadConfig()
+    private async Task<HashSet<(string, string, uint)>> ReadConfig()
     {
         const string config = "config.txt";
 
-        HashSet<(string, string)> result = [];
+        HashSet<(string, string, uint)> result = [];
         if (!File.Exists(config)) throw new FileNotFoundException($"{config} not found");
 
         using var reader = File.OpenText(config);
@@ -73,7 +73,7 @@ public class Core : IDisposable
         return result;
     }
 
-    private static void ProcessConfigLine(HashSet<(string, string)> list, string ln)
+    private static void ProcessConfigLine(HashSet<(string, string, uint)> list, string ln)
     {
         StringBuilder sb = new(ln.Length);
         var isValidLine = !ln.StartsWith('"') && (ln.Count(ch => ch == '"') == 2);
@@ -101,26 +101,62 @@ public class Core : IDisposable
         var device = sb.ToString().Trim();
         if (string.IsNullOrEmpty(device)) throw new Exception($"Invalid config line: {ln}");
 
-        list.Add((name, device));
+        uint delay = 0;
+        ReadDelay(ln, i, ref delay);
+
+        list.Add((name, device, delay));
+    }
+
+    private static void ReadDelay(string ln, int i, ref uint delay)
+    {
+        if (++i >= ln.Length) return;
+
+        var numbStr = ln.Substring(i).Trim();
+        if (numbStr.Length == 0) return;
+
+        var split = numbStr.Split(' ');
+        if (split.Length > 1)
+        {
+            numbStr = split[0];
+        }
+
+        if (uint.TryParse(numbStr, out uint n))
+        {
+            delay = n;
+            return;
+        }
+        throw new Exception($"Error parsing Delay in '{ln}'");
     }
 
     private async Task<HashSet<(string, Action)>> ReadAndProcessConfig()
     {
         HashSet<(string, Action)> list = [];
-        foreach (var (name, device) in await ReadConfig())
+        foreach (var (name, device, delay) in await ReadConfig())
         {
             list.Add((name, () =>
             {
-                TryStartSoundSwitchProgram(device, name);
-                channelW?.TryWrite(@$"{name}: applying ""{device}""");
-            }
-            ));
+                if (delay > 0)
+                {
+                    Task.Run(async () => {
+                        await Task.Delay((int)delay);
+                        TryStartSoundSwitchProgram(device, name);
+                        channelW?.TryWrite($"{name}: applied");
+                    });
+                }
+                else
+                {
+                    TryStartSoundSwitchProgram(device, name);
+                }
+                var delayMsg = delay > 0 ? $", delayed by {delay}ms" : "";
+                channelW?.TryWrite(@$"{name}: applying ""{device}""{delayMsg}");
+            }));
         }
         return list;
     }
 
     private void StartSoundSwitchProgram(string device, string app)
     {
+        app = Path.GetFileNameWithoutExtension(app) + ".exe";
         using Process p = new()
         {
             StartInfo = new()
