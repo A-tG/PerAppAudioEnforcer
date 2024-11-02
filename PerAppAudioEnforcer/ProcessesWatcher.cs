@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Management;
+using System.Reflection.PortableExecutable;
 
 namespace PerAppAudioEnforcer;
 public class ProcessesWatcher : IDisposable
@@ -13,7 +14,7 @@ public class ProcessesWatcher : IDisposable
     { 
         set 
         {
-            if (value is null) throw new ArgumentNullException(nameof(value));
+            ArgumentNullException.ThrowIfNull(value);
 
             IsRunning = false;
             _appsActions = value;
@@ -48,30 +49,36 @@ public class ProcessesWatcher : IDisposable
 
     private void OnEvent(object sender, EventArrivedEventArgs e)
     {
+        using var newEvent = e.NewEvent;
         if (!IsRunning) return;
 
         try
         {
-            if (e.NewEvent.GetPropertyValue("TargetInstance") is not ManagementBaseObject instanceDescription) return;
-
-            var name = Path.GetFileNameWithoutExtension(instanceDescription.GetPropertyValue("Name").ToString());
-            if (string.IsNullOrEmpty(name)) return;
-
-            var filteredAppsActions = _appsActions.Where(t => t.Item1 == name);
-            if (!filteredAppsActions.Any()) return;
-
-            var id = instanceDescription.GetPropertyValue("ParentProcessId").ToString();
-            if (string.IsNullOrEmpty(id)) return;
-
-            using var p = Process.GetProcessById(int.Parse(id));
-            if (p.ProcessName == name) return;
-
-            foreach (var (_, action) in filteredAppsActions)
-            {
-                action();
-            }
+            ProcessEventObject(newEvent);
         }
         catch { }
+    }
+
+    private void ProcessEventObject(ManagementBaseObject o)
+    {
+        using var instanceDescription = (ManagementBaseObject)o.GetPropertyValue("TargetInstance");
+
+        var name = Path.GetFileNameWithoutExtension(instanceDescription.GetPropertyValue("Name").ToString());
+        if (string.IsNullOrEmpty(name)) return;
+
+        var filteredAppsActions = _appsActions.Where(t => t.Item1 == name);
+        if (!filteredAppsActions.Any()) return;
+
+        var id = instanceDescription.GetPropertyValue("ParentProcessId").ToString();
+        if (string.IsNullOrEmpty(id)) return;
+
+        using var p = Process.GetProcessById(int.Parse(id));
+        if (p.ProcessName == name) return;
+
+        foreach (var (_, action) in filteredAppsActions)
+        {
+            action();
+        }
     }
 
     private static bool IsAppRunning(string appName)
