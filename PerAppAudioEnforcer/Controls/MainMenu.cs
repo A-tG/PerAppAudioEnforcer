@@ -10,11 +10,10 @@ public partial class MainMenu : Form
     {
         InitializeComponent();
         FormClosing += OnClose;
-        Load += (_, _) => Task.Run(async () => await LogLoop());
-
+        Load += (_, _) => _ = LogLoop();
     }
 
-    private async ValueTask LogLoop()
+    private async Task LogLoop()
     {
         await foreach (var m in ChannelR.ReadAllAsync())
         {
