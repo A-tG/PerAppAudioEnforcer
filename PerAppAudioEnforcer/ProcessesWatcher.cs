@@ -63,7 +63,7 @@ public class ProcessesWatcher : IDisposable
             var id = instanceDescription.GetPropertyValue("ParentProcessId").ToString();
             if (string.IsNullOrEmpty(id)) return;
 
-            var p = Process.GetProcessById(int.Parse(id));
+            using var p = Process.GetProcessById(int.Parse(id));
             if (p.ProcessName == name) return;
 
             foreach (var (_, action) in filteredAppsActions)
@@ -78,8 +78,12 @@ public class ProcessesWatcher : IDisposable
     {
         var n = Path.GetFileNameWithoutExtension(appName);
         var processes = Process.GetProcessesByName(n);
-        return processes.Any(p => p.ProcessName == n);
-
+        var isRunning = processes.Any(p => p.ProcessName == n);
+        foreach (var p in processes)
+        {
+            p.Dispose();
+        }
+        return isRunning;
     }
 
     protected virtual void Dispose(bool disposing)
