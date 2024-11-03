@@ -50,11 +50,16 @@ public class ProcessesWatcher : IDisposable
     private void OnEvent(object sender, EventArrivedEventArgs e)
     {
         using var newEvent = e.NewEvent;
-        if (!IsRunning) return;
+        if (!IsRunning)
+        {
+            CleanUp();
+            return;
+        }
 
         try
         {
             ProcessEventObject(newEvent);
+            CleanUp();
         }
         catch { }
     }
@@ -91,6 +96,13 @@ public class ProcessesWatcher : IDisposable
             p.Dispose();
         }
         return isRunning;
+    }
+
+    private static void CleanUp()
+    {
+        // looks lie ManagementEventWatcher/WMI produces some kind of memory leak
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
     }
 
     protected virtual void Dispose(bool disposing)

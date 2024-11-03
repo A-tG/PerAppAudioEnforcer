@@ -43,7 +43,7 @@ internal static class Program
             btn.Click += async (_, _) => await c.ReloadConfig().ConfigureAwait(false);
         }
 
-        var tray = new TrayIcon();
+        TrayIcon tray = new();
         tray.Open += (_, _) => menu.Show();
     }
 
