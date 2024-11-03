@@ -41,6 +41,7 @@ partial class MainMenu
         LogBox.Multiline = true;
         LogBox.Name = "LogBox";
         LogBox.ReadOnly = true;
+        LogBox.ScrollBars = ScrollBars.Vertical;
         LogBox.Size = new Size(800, 409);
         LogBox.TabIndex = 0;
         // 
