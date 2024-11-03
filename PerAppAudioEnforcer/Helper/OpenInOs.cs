@@ -8,18 +8,23 @@ public static class OpenInOs
         bool result = false;
         try
         {
-            using Process p = new();
-            ProcessStartInfo info = new()
-            {
-                FileName = path,
-                UseShellExecute = true
-            };
-            p.StartInfo = info;
-            _ = p.Start();
-
+            Open(path);
             result = true;
         }
         catch { }
         return result;
+    }
+
+    public static void Open(string path)
+    {
+        using Process p = new()
+        {
+            StartInfo = new()
+            {
+                FileName = path,
+                UseShellExecute = true
+            }
+        };
+        p.Start();
     }
 }
