@@ -11,7 +11,7 @@
     <Authors>Dmitriy Kurbatov</Authors>
     <Company>A-tG</Company>
     <Description>Calls SoundVolumeView.exe for specified programs</Description>
-    <Version>1.1.1</Version>
+    <Version>1.1.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
